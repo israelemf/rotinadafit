@@ -26,20 +26,4 @@ public class JsonErrorStructure {
         this.details = details;
         this.message = message;
     }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-    public Integer getCode() {
-        return code;
-    }
-    public String getStatus() {
-        return status;
-    }
-    public Object getMessage() {
-        return message;
-    }
-    public String getDetails() {
-        return details;
-    }
 }
