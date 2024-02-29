@@ -9,6 +9,7 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,10 +19,12 @@ import java.util.UUID;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -44,17 +47,20 @@ public class UserServiceImpl implements UserService {
     public void save(CreateUserDto createUserDto) {
         String email = createUserDto.email();
         String username = createUserDto.username();
+        String encryptedPassword = this.passwordEncoder.encode(createUserDto.password());
 
         if (this.userRepository.findUserByEmail(email).isPresent()) {
             throw new EntityExistsException("Esse email já está em uso. Tente outro.");
         }
 
-        if (this.userRepository.findUserByUsername(email).isPresent()) {
+        if (this.userRepository.findUserByUsername(username).isPresent()) {
             throw new EntityExistsException("Esse nome de usuário já está em uso. Tente outro.");
         }
 
         var user = new User();
         BeanUtils.copyProperties(createUserDto, user);
+
+        user.setPassword(encryptedPassword);
 
         this.userRepository.save(user);
     }
