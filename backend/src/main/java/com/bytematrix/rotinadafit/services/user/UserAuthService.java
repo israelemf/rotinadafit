@@ -40,7 +40,7 @@ public class UserAuthService {
         var user = userRepository.findUserByEmail(authRequest.email())
                 .orElseThrow(() -> new EntityNotFoundException("Login " + authRequest.email() + " not exists!"));
 
-        if (!this.passwordEncoder.matches(authRequest.password(), this.userRepository.getPassword(authRequest.email()))) {
+        if (!this.passwordEncoder.matches(authRequest.password(), this.userRepository.findPasswordByEmail(authRequest.email()))) {
             throw new BadCredentialsException("Senha incorreta!");
         }
 
