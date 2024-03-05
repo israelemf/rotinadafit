@@ -3,6 +3,8 @@ package com.bytematrix.rotinadafit.exceptions;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JsonErrorStructure {
     @JsonFormat(pattern = "dd/mm/yyyy hh:mm:ss")
@@ -11,6 +13,13 @@ public class JsonErrorStructure {
     private String status;
     private String details;
     private Object message;
+    private Map<String, String> fieldErrors = new HashMap<>();
+
+    public JsonErrorStructure(LocalDateTime timestamp, Integer code, String status) {
+        this.timestamp = timestamp;
+        this.code = code;
+        this.status = status;
+    }
 
     public JsonErrorStructure(LocalDateTime timestamp, Integer code, String status, Object message) {
         this.timestamp = timestamp;
@@ -45,5 +54,13 @@ public class JsonErrorStructure {
 
     public Object getMessage() {
         return message;
+    }
+
+    public Map<String, String> getFieldErrors() {
+        return fieldErrors;
+    }
+
+    public void addFieldError(String field, String message) {
+        fieldErrors.put(field, message);
     }
 }
