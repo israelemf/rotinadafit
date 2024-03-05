@@ -19,12 +19,10 @@ import java.util.UUID;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -47,7 +45,6 @@ public class UserServiceImpl implements UserService {
     public void save(CreateUserDto createUserDto) {
         String email = createUserDto.email();
         String username = createUserDto.username();
-        String encryptedPassword = this.passwordEncoder.encode(createUserDto.password());
 
         if (this.userRepository.findUserByEmail(email).isPresent()) {
             throw new EntityExistsException("Esse email já está em uso. Tente outro.");
@@ -59,8 +56,6 @@ public class UserServiceImpl implements UserService {
 
         var user = new User();
         BeanUtils.copyProperties(createUserDto, user);
-
-        user.setPassword(encryptedPassword);
 
         this.userRepository.save(user);
     }
