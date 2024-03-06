@@ -1,6 +1,7 @@
 package com.bytematrix.rotinadafit.exceptions.handler;
 
 import com.bytematrix.rotinadafit.exceptions.JsonErrorStructure;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.context.MessageSource;
@@ -61,5 +62,17 @@ public class RestExceptionHandler {
         });
 
         return new ResponseEntity<>(jsonErrorStructure, BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<JsonErrorStructure> expiredTokenExceptionHandler(ExpiredJwtException expiredJwtException) {
+        var jsonErrorStructure =
+                new JsonErrorStructure(LocalDateTime.now(),
+                        FORBIDDEN.value(),
+                        FORBIDDEN.name(),
+                        expiredJwtException.getMessage(),
+                        "Sua sessão expirou! Por favor, refaça o login.");
+
+        return new ResponseEntity<>(jsonErrorStructure, FORBIDDEN);
     }
 }
