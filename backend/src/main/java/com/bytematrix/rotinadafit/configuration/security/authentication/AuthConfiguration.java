@@ -27,8 +27,15 @@ public class AuthConfiguration {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
-            User user = userRepository.findUserByEmail(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
+            var user = new User();
+            if (username.contains("@")) {
+                user = userRepository.findUserByEmail(username)
+                        .orElseThrow(() -> new UsernameNotFoundException("Email não encontrado!"));
+            } else {
+                user = userRepository.findUserByUsername(username)
+                        .orElseThrow(() -> new UsernameNotFoundException("Nome de usuário não encontrado!"));
+            }
+
 
             return new UserDetailsImpl(user);
         };

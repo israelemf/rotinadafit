@@ -4,19 +4,16 @@ import com.bytematrix.rotinadafit.configuration.security.authentication.JwtServi
 import com.bytematrix.rotinadafit.configuration.security.authentication.UserDetailsImpl;
 import com.bytematrix.rotinadafit.dtos.authentication.AuthRequestDto;
 import com.bytematrix.rotinadafit.dtos.authentication.AuthResponseDto;
+import com.bytematrix.rotinadafit.entities.User;
 import com.bytematrix.rotinadafit.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import javax.security.auth.login.CredentialNotFoundException;
 
 @Service
 public class UserAuthService {
@@ -37,10 +34,17 @@ public class UserAuthService {
 
     @Transactional
     public AuthResponseDto authenticateManager(AuthRequestDto authRequest) {
-        var user = userRepository.findUserByEmail(authRequest.email())
-                .orElseThrow(() -> new EntityNotFoundException("Login " + authRequest.email() + " not exists!"));
+        var user = new User();
 
-        if (!this.passwordEncoder.matches(authRequest.password(), this.userRepository.findPasswordByEmail(authRequest.email()))) {
+        if (authRequest.email().contains("@")) {
+            user = userRepository.findUserByEmail(authRequest.email())
+                    .orElseThrow(() -> new EntityNotFoundException("O login " + authRequest.email() + " não existe!"));
+        } else {
+            user = userRepository.findUserByUsername(authRequest.email())
+                    .orElseThrow(() -> new EntityNotFoundException("O login " + authRequest.email() + " não existe!"));
+        }
+
+        if (!this.passwordEncoder.matches(authRequest.password(), user.getPassword())) {
             throw new BadCredentialsException("Senha incorreta!");
         }
 
